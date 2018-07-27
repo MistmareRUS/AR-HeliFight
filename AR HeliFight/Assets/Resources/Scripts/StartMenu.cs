@@ -82,7 +82,7 @@ public class StartMenu : MonoBehaviour
         else if (myPlayer == AppController.PlayerC) AppController.currentPlayer = 2;
         else if (myPlayer == AppController.PlayerD) AppController.currentPlayer = 3;
 
-        byte[] message = AppController.MessageCodingReliable("1model&1color&");//ID отправляется автоматом, проверить
+        byte[] message = AppController.MessageCodingReliable("Model&1model&1color&");//ID отправляется автоматом, проверить
         PlayGamesPlatform.Instance.RealTime.SendMessageToAll(true, message);
         SceneManager.LoadScene("Main");
     }

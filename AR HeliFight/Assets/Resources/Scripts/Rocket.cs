@@ -3,10 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Bullet : MonoBehaviour
+public class Rocket : MonoBehaviour
 {
-    float speed;
-    float startTime;
+    int target;
     PlayerHelper playerHelper;
     public int ParentHeli;
 
@@ -14,18 +13,17 @@ public class Bullet : MonoBehaviour
     void Start()
     {
         ParentHeli = transform.parent.GetComponent<PlayerHelper>().PlayerIndex;
-        startTime = Time.time;
         playerHelper = transform.GetComponentInParent<PlayerHelper>();
-        speed = playerHelper.AttackSpeed;
         transform.LookAt(playerHelper.gameController.Controllers[playerHelper.Target].transform.position);
+        target = playerHelper.Target;
         transform.SetParent(null);
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Time.time - startTime > 5f) Destroy(gameObject);
-        transform.Translate(Vector3.forward * speed * Time.deltaTime);
+        transform.position=Vector3.Lerp(transform.position, playerHelper.gameController.Controllers[target].transform.position,0.2f);
+        transform.LookAt(playerHelper.gameController.Controllers[target].transform);
     }
-    
+
 }

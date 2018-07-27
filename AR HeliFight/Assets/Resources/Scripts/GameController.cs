@@ -11,7 +11,7 @@ public class GameController : MonoBehaviour
 {
     public GameObject[] Respowns;//здесь появляются все участники
     public GameObject Center;
-   
+
     public GameObject[] HelicopterModels;//сюда закинуть варианты моделей
     public VirtualJoystick joystick;
     public Slider CurrentPlayer;//здоровье игрока
@@ -24,12 +24,13 @@ public class GameController : MonoBehaviour
     public Text infotext_out;
 
     private float moveSpeed;
+    private int RocketCount;
     public GameObject[] PlayersPrefabs;
     public PlayerHelper[] Players;//информация о всех игроках    // AppController.PlayerCount  индекс текущего игрока
     public CharacterController[] Controllers;//управление всеми моделями на поле
     List<int> targets;
 
-    //bool isHost = false;
+    bool isHost = false;
 
 
     // Use this for initialization
@@ -47,14 +48,11 @@ public class GameController : MonoBehaviour
 #if !UNITY_EDITOR
         //связь текущего контроллера и мультиплеера
         multiPlayer = GameObject.Find("MultiPlayerHelper").GetComponent<MultiPlayerHelper>();
-        multiPlayer.gameController = this;
-       
+        multiPlayer.gameController = this;       
 #endif
-
-
         PlayersPrefabs = new GameObject[AppController.PlayerCount];//Инициализируем массив игроков из статического класса
         Players = new PlayerHelper[AppController.PlayerCount];//инициализируем массив хелперов для получения инфо о состоянии
-        Controllers = new CharacterController[AppController.PlayerCount];//инициализируем массив контроллеров для управленияна моделями поле
+        Controllers = new CharacterController[AppController.PlayerCount];//инициализируем массив контроллеров для управленияна моделями на поле
 
         SetPlayers();
         for (int i = 0; i < Players.Length; i++)
@@ -86,9 +84,9 @@ public class GameController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        MessageUpdate();
-        print(Players[AppController.currentPlayer].Target);
-        if (!(Players[AppController.currentPlayer].Target == -1)) Debug.DrawLine(Players[AppController.currentPlayer].Minigun.transform.position, Players[Players[AppController.currentPlayer].Target].transform.position, Color.red);
+        GameUpdate();
+        if (!(Players[AppController.currentPlayer].Target == -1))
+            Debug.DrawLine(Players[AppController.currentPlayer].Minigun.transform.position, Players[Players[AppController.currentPlayer].Target].transform.position, Color.red);
     }
 
     private void FixedUpdate()
@@ -119,6 +117,7 @@ public class GameController : MonoBehaviour
                                                                 + PlayersPrefabs[AppController.currentPlayer].transform.eulerAngles + "&"
                                                                 + Players[AppController.currentPlayer].HP + "&"
                                                                 + Players[AppController.currentPlayer].Target + "&"
+                                                                + Players[AppController.currentPlayer].AttackSpeed + "&"
                                                                 );
         infotext_out.text = AppController.currentPlayer + "&"
                         + Controllers[AppController.currentPlayer].transform.position + "&"//отсюда
@@ -152,33 +151,28 @@ public class GameController : MonoBehaviour
     //передвижение тел на карте
 
 
-    /*public void StartRocket(string leftRight) //отправить:   Players[AppController.currentPlayer]    №/атака...  //добавить номер чаилда!!!
+    public void StartRocket(string leftRight)
     {
-        Transform startPosition;
+        //if (RocketCount == 0) return;
+        RocketCount--;
+        byte[] message = new byte[] { };
         if (leftRight == "l")
         {
-            startPosition = Players[AppController.currentPlayer].transform.GetChild(0).transform;
+            Players[AppController.currentPlayer].LRocket();
+            message = AppController.MessageCodingReliable("LR&" + AppController.currentPlayer + "&" + Players[AppController.currentPlayer].Target);
         }
         else if (leftRight == "r")
         {
-            startPosition = Players[AppController.currentPlayer].transform.GetChild(0).transform;
+            Players[AppController.currentPlayer].RRocket();
+            message = AppController.MessageCodingReliable("RR&" + AppController.currentPlayer + "&" + Players[AppController.currentPlayer].Target);
         }
+#if !UNITY_EDITOR
+            PlayGamesPlatform.Instance.RealTime.SendMessageToAll(true, message);
+#endif
+    }
 
-        print("Пиу-пиу ракетой");
-        if (Players[AppController.currentPlayer].CurrentTarget != null)
-        {
-            Players[AppController.currentPlayer].CurrentTarget.TakeDamage(10f);
-        }
-        else
-        {
-            //сообщить об отсутствии цели
-        }
-        //отрисовать путь ракет из точки transform!!!!
 
-    }*/
 
-   
-    
 
     //всех игроков по своим местам
     void SetPlayers()
@@ -186,18 +180,18 @@ public class GameController : MonoBehaviour
         //расположение игроков(префабов)   модели должны считываться из первой сцены, временно все 1!!!!!!!
         //можно переписать без установки родителей
         PlayersPrefabs[0] = Instantiate(HelicopterModels[0]);
-        PlayersPrefabs[0].transform.SetParent(Respowns[0].transform);       
+        PlayersPrefabs[0].transform.SetParent(Respowns[0].transform);
         PlayersPrefabs[0].name = "Player_0";
         PlayersPrefabs[1] = Instantiate(HelicopterModels[0]);
-        PlayersPrefabs[1].transform.SetParent(Respowns[1].transform);        
+        PlayersPrefabs[1].transform.SetParent(Respowns[1].transform);
         PlayersPrefabs[1].name = "Player_1";
         //если игроков 4-ро, то эти респауны
         if (AppController.PlayerC != string.Empty && AppController.PlayerD != string.Empty)
         {
             PlayersPrefabs[2] = Instantiate(HelicopterModels[0]);
             PlayersPrefabs[3] = Instantiate(HelicopterModels[0]);
-            PlayersPrefabs[2].transform.SetParent(Respowns[2].transform);           
-            PlayersPrefabs[3].transform.SetParent(Respowns[3].transform);           
+            PlayersPrefabs[2].transform.SetParent(Respowns[2].transform);
+            PlayersPrefabs[3].transform.SetParent(Respowns[3].transform);
             PlayersPrefabs[2].name = "Player_2";
             PlayersPrefabs[3].name = "Player_3";
         }
@@ -206,7 +200,7 @@ public class GameController : MonoBehaviour
         {
             //добавить смещение центра сцены !!!
             PlayersPrefabs[2] = Instantiate(HelicopterModels[0]);
-            PlayersPrefabs[2].transform.SetParent(Respowns[4].transform);            
+            PlayersPrefabs[2].transform.SetParent(Respowns[4].transform);
             PlayersPrefabs[2].name = "Player_2";
         }
         foreach (var item in PlayersPrefabs)
@@ -219,10 +213,13 @@ public class GameController : MonoBehaviour
     //установка ХарактерКонтроллеров и ПлеерХелперов
     void SetControler()
     {
+        int index = -1;
         for (int i = 0; i < PlayersPrefabs.Length; i++)
         {
             Players[i] = PlayersPrefabs[i].GetComponent<PlayerHelper>() as PlayerHelper;
             Controllers[i] = PlayersPrefabs[i].GetComponent<CharacterController>();
+            index++;
+            Players[i].PlayerIndex = index;
         }
     }
     //Регулярное обновление полосох ХП на основе currentHP массива
@@ -260,8 +257,15 @@ public class GameController : MonoBehaviour
             if (ct < 0) ct = AppController.PlayerCount - 1;
             if (!targets.Contains(ct)) ct--;
         }
+        //если цель не изменилась( игроков всего 2)- прекратить выполнение
+        if (Players[AppController.currentPlayer].Target == ct) return;
+
         Players[AppController.currentPlayer].Target = ct;
         Players[AppController.currentPlayer].StartFire();
+#if !UNITY_EDITOR
+        byte[] message = AppController.MessageCodingReliable("Target&" + AppController.currentPlayer+"&"+Players[AppController.currentPlayer].Target);
+        PlayGamesPlatform.Instance.RealTime.SendMessageToAll(true, message);
+#endif
     }
 
 
@@ -277,19 +281,14 @@ public class GameController : MonoBehaviour
 
 
     //выполняется хостом
-    public void AsHostPlayer()
-    {
-
-    }
-
+    
     //выполняется клиентом хоста
-    public void AsClientPlayer()
+    
+    void GameUpdate()
     {
+        if (isHost)
+        {
 
-    }
-    void GameUpdate(bool isHost)
-    {
-        if (isHost) AsHostPlayer();
-        else AsClientPlayer();
+        }
     }
 }

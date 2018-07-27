@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using GooglePlayGames;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -10,13 +11,15 @@ public class PlayerHelper : MonoBehaviour
     public GameObject RightWeapon;
     public GameObject Minigun;
     public GameObject BulletPrefab;
+    public GameObject RocketPrefab;
 
     public float HP;
-    public int Target=-1;
+    public int Target = -1;
+    public int PlayerIndex=-1;
     [SerializeField]
-    public float AttackSpeed=10f;
+    public float AttackSpeed = 10f;
 
-     public GameController gameController;
+    public GameController gameController;
 
     void Start()
     {
@@ -28,17 +31,46 @@ public class PlayerHelper : MonoBehaviour
     {
 
     }
+    //атака минигана
     public void StartFire()
     {
         CancelInvoke("MinigunFire");
         InvokeRepeating("MinigunFire", 0, 2);
     }
-    void  MinigunFire()
+    void MinigunFire()
     {
-        GameObject bullet = Instantiate(BulletPrefab, Minigun.transform.position, Quaternion.identity,this.transform);
+        GameObject bullet = Instantiate(BulletPrefab, Minigun.transform.position, Quaternion.identity, this.transform);
     }
-   
-    public void BonusAniation()
+    //Распознание входящих коллайдеров
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.CompareTag("Bullet"))
+        {
+            Destroy(other.gameObject);
+            HP -= 1f;
+#if !UNITY_EDITOR
+            if (other.GetComponent<Bullet>().ParentHeli == AppController.currentPlayer)
+            {
+                byte[] message = AppController.MessageCodingReliable("Bullet&" + AppController.currentPlayer);
+                PlayGamesPlatform.Instance.RealTime.SendMessageToAll(true, message);
+            }
+#endif           
+        }
+        if (other.gameObject.CompareTag("Rocket"))
+        {
+            Destroy(other.gameObject);
+            HP -= 20f;
+#if !UNITY_EDITOR
+            if (other.GetComponent<Rocket>().ParentHeli == AppController.currentPlayer)
+            {
+                byte[] message = AppController.MessageCodingReliable("Rocket&" + AppController.currentPlayer);
+                PlayGamesPlatform.Instance.RealTime.SendMessageToAll(true, message);
+            }
+#endif
+
+        }
+    }
+        public void BonusAniation()
     {
         //shield/boost/heal/LR/RR...
     }
@@ -46,30 +78,23 @@ public class PlayerHelper : MonoBehaviour
     {
         //if win/lose
     }
-    public void TakeDamage(float damage)
+    
+    public void LRocket()
     {
-        
+        GameObject rocket = Instantiate(RocketPrefab, LeftWeapon.transform.position, Quaternion.identity, this.transform);
+    }
+    public void RRocket()
+    {
+        GameObject rocket = Instantiate(RocketPrefab, RightWeapon.transform.position, Quaternion.identity, this.transform);
     }
 
-    public void TakeHeal(float heal)
-    {
-        
-    }
 
     public void Shield()
     {
-       //активировать таймер и щит
+        //активировать таймер и щит
     }
-        
-    public void Boost()
-    {
-        
-    } 
-    public void LeftRocket()
-    {
 
-    }
-    public void RightRocket()
+    public void Boost()
     {
 
     }

@@ -108,6 +108,7 @@ GameObject:
   - component: {fileID: 4735159547285448}
   - component: {fileID: 114694876956991364}
   - component: {fileID: 143142822442862456}
+  - component: {fileID: 65497467894934552}
   m_Layer: 0
   m_Name: HelicopterDemo
   m_TagString: Player
@@ -303,7 +304,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1996512422699236}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -1.91, y: -0.5501127, z: 0}
+  m_LocalPosition: {x: -3, y: -1.1301126, z: 0}
   m_LocalScale: {x: 0.58366, y: 0.58366, z: 0.58366}
   m_Children:
   - {fileID: 4913254415436022}
@@ -317,7 +318,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1892547061398482}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.83, y: -0.55, z: 0}
+  m_LocalPosition: {x: 3, y: -1.13, z: 0}
   m_LocalScale: {x: 0.5836559, y: 0.5836559, z: 0.5836559}
   m_Children:
   - {fileID: 4100119891447282}
@@ -331,7 +332,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1203660962833986}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.023, y: -1.3, z: 0}
+  m_LocalPosition: {x: -0.023, y: -1.4, z: 0}
   m_LocalScale: {x: 0.58366, y: 0.58366, z: 0.58366}
   m_Children:
   - {fileID: 4916221283599466}
@@ -371,7 +372,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1206430755460814}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -20, y: 1.81, z: -20}
+  m_LocalPosition: {x: -31.707397, y: -11.151, z: 12.061334}
   m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
   m_Children:
   - {fileID: 4074858308055032}
@@ -888,6 +889,18 @@ MeshFilter:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1547714357167242}
   m_Mesh: {fileID: 4300008, guid: ff3e8c3aad864db4394551f29cc6f224, type: 3}
+--- !u!65 &65497467894934552
+BoxCollider:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1206430755460814}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 2, y: 2, z: 3.5}
+  m_Center: {x: 0, y: 1.37, z: 0.45}
 --- !u!111 &111399893633514936
 Animation:
   m_ObjectHideFlags: 1
@@ -918,6 +931,8 @@ MonoBehaviour:
   RightWeapon: {fileID: 1892547061398482}
   Minigun: {fileID: 1203660962833986}
   BulletPrefab: {fileID: 1891814964431078, guid: 8574f17119a678a41b5f2fe8b6dd37e3,
+    type: 2}
+  RocketPrefab: {fileID: 1326967780749428, guid: e6384000f8e34d449a2631e25c330819,
     type: 2}
   HP: 0
   Target: -1
